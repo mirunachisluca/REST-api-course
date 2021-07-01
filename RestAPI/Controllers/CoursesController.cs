@@ -63,5 +63,33 @@ namespace RestAPI.Controllers
 
             return CreatedAtRoute("GetCourseForAuthor", new { id, courseId = courseToReturn.Id }, courseToReturn);
         }
+
+        [HttpPut("{courseId:guid}")]
+        public IActionResult UpdateCourseForAuthor(Guid id, Guid courseId, CourseToUpdateDto courseDto)
+        {
+            if (!_courseLibraryRepository.AuthorExists(id)) return NotFound();
+
+            var course = _courseLibraryRepository.GetCourse(id, courseId);
+
+            if (course == null)
+            {
+                var newCourse = _mapper.Map<Course>(courseDto);
+                newCourse.Id = courseId;
+
+                _courseLibraryRepository.AddCourse(id, newCourse);
+                _courseLibraryRepository.Save();
+
+                var courseToReturn = _mapper.Map<CourseDto>(newCourse);
+
+                return CreatedAtRoute("GetCourseForAuthor", new { id, courseId = courseToReturn.Id }, courseToReturn);
+            }
+
+            _mapper.Map(courseDto, course);
+
+            _courseLibraryRepository.UpdateCourse(course);
+            _courseLibraryRepository.Save();
+
+            return NoContent();
+        }
     }
 }

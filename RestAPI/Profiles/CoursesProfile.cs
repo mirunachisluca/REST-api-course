@@ -10,6 +10,7 @@ namespace RestAPI.Profiles
         {
             CreateMap<Course, CourseDto>();
             CreateMap<CourseToInsertDto, Course>();
+            CreateMap<CourseToUpdateDto, Course>();
         }
     }
 }
