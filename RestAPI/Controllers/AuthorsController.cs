@@ -61,5 +61,18 @@ namespace RestAPI.Controllers
 
             return Ok();
         }
+
+        [HttpDelete("{id:guid}")]
+        public ActionResult DeleteAuthor(Guid id)
+        {
+            var author = _courseLibraryRepository.GetAuthor(id);
+
+            if (author == null) return NotFound();
+
+            _courseLibraryRepository.DeleteAuthor(author);
+            _courseLibraryRepository.Save();
+
+            return NoContent();
+        }
     }
 }

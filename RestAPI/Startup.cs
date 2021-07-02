@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Writers;
+using Newtonsoft.Json.Serialization;
 using RestAPI.DbContexts;
 using RestAPI.Services;
 
@@ -30,7 +31,12 @@ namespace RestAPI
             services.AddControllers(setup =>
             {
                 setup.ReturnHttpNotAcceptable = true;
-            }).AddXmlDataContractSerializerFormatters()
+            })
+                .AddNewtonsoftJson(opt =>
+                {
+                    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                })
+                .AddXmlDataContractSerializerFormatters()
                 .ConfigureApiBehaviorOptions(opt =>
                 {
                     opt.InvalidModelStateResponseFactory = context =>
