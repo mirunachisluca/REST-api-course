@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RestAPI.Entities
 {
+#pragma warning disable CS1591
     public class Author
     {
         [Key]
@@ -27,4 +28,5 @@ namespace RestAPI.Entities
         public ICollection<Course> Courses { get; set; }
             = new List<Course>();
     }
+#pragma warning restore CS1591
 }

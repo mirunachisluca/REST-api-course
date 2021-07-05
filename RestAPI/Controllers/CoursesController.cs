@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -13,6 +14,7 @@ using RestAPI.Services;
 
 namespace RestAPI.Controllers
 {
+    [Produces("application/json", "application/xml")]
     [Route("api/authors/{id:guid}/courses")]
     [ApiController]
     public class CoursesController : ControllerBase
@@ -26,6 +28,8 @@ namespace RestAPI.Controllers
             _mapper = mapper;
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
         public ActionResult<IReadOnlyList<CourseDto>> GetCoursesForAuthor(Guid id)
         {
@@ -39,6 +43,7 @@ namespace RestAPI.Controllers
             return Ok(_mapper.Map<IReadOnlyList<CourseDto>>(courses));
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("{courseId:guid}", Name = "GetCourseForAuthor")]
         public ActionResult<CourseDto> GetCourseForAuthor(Guid id, Guid courseId)
         {
@@ -55,6 +60,7 @@ namespace RestAPI.Controllers
         }
 
         [HttpPost]
+        [Consumes("application/json")]
         public ActionResult<CourseDto> CreateCourseForAuthor(Guid id, CourseToInsertDto courseDto)
         {
             if (!_courseLibraryRepository.AuthorExists(id)) return NotFound();
@@ -97,6 +103,24 @@ namespace RestAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Partially update a course
+        /// </summary>
+        /// <param name="id">Author's id</param>
+        /// <param name="courseId">The id of the course to update</param>
+        /// <param name="patchDocument">The set of operations to apply to the course</param>
+        /// <returns>An ActionResult</returns>
+        /// <remarks>
+        /// Sample request  (update description of a course) \
+        /// PATCH /authors/id/courses/courseId \
+        /// [ \
+        ///     { \
+        ///       "op": "replace", \
+        ///       "path": "/description", \
+        ///       "value": "Updated description" \
+        ///     } \
+        /// ]
+        /// </remarks>
         [HttpPatch("{courseId:guid}")]
         public ActionResult PartiallyUpdateCourseForAuthor(Guid id, Guid courseId,
             JsonPatchDocument<CourseToUpdateDto> patchDocument)

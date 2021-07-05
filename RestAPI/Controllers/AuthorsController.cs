@@ -4,6 +4,7 @@ using RestAPI.Models;
 using RestAPI.Services;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using RestAPI.Entities;
 using RestAPI.ResourceParams;
 
@@ -31,6 +32,15 @@ namespace RestAPI.Controllers
             return Ok(_mapper.Map<IReadOnlyCollection<AuthorDto>>(authors));
         }
 
+        /// <summary>
+        /// Get an author by their id
+        /// </summary>
+        /// <param name="id">The id of the author</param>
+        /// <returns>An ActionResult of type Author</returns>
+        /// <response code="200">Returns the requested author</response>
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("{id:guid}", Name = "GetAuthor")]
         public ActionResult<AuthorDto> GetAuthor(Guid id)
         {
