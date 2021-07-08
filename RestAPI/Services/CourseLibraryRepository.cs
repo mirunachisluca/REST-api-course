@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using RestAPI.DbContexts;
 using RestAPI.Entities;
+using RestAPI.Helpers;
+using RestAPI.Models;
 using RestAPI.ResourceParams;
 
 namespace RestAPI.Services
@@ -10,10 +12,12 @@ namespace RestAPI.Services
     public class CourseLibraryRepository : ICourseLibraryRepository, IDisposable
     {
         private readonly CourseLibraryContext _context;
+        private readonly IPropertyMappingService _propertyMappingService;
 
-        public CourseLibraryRepository(CourseLibraryContext context)
+        public CourseLibraryRepository(CourseLibraryContext context, IPropertyMappingService propertyMappingService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _propertyMappingService = propertyMappingService;
         }
 
         public void AddCourse(Guid authorId, Course course)
@@ -123,12 +127,8 @@ namespace RestAPI.Services
             return _context.Authors.ToList<Author>();
         }
 
-        public IEnumerable<Author> GetAuthors(AuthorsResourceParams authorsParams)
+        public PagedList<Author> GetAuthors(AuthorsResourceParams authorsParams)
         {
-            if (string.IsNullOrWhiteSpace(authorsParams.MainCategory) && string.IsNullOrWhiteSpace(authorsParams.SearchQuery))
-            {
-                return GetAuthors();
-            }
 
             var collection = _context.Authors as IQueryable<Author>;
 
@@ -148,7 +148,19 @@ namespace RestAPI.Services
                     a.LastName.Contains(searchQuery));
             }
 
-            return collection.ToList();
+            if (!string.IsNullOrWhiteSpace(authorsParams.OrderBy))
+            {
+                //if (authorsParams.OrderBy.ToLowerInvariant() == "name")
+                //{
+                //    collection = collection.OrderBy(a => a.FirstName).ThenBy(a => a.LastName);
+                //}
+
+                var authorPropertyMappingDictionary = _propertyMappingService.GetPropertyMapping<AuthorDto, Author>();
+
+                collection = collection.ApplySort(authorsParams.OrderBy, authorPropertyMappingDictionary);
+            }
+
+            return PagedList<Author>.Create(collection, authorsParams.PageNumber, authorsParams.PageSize);
         }
 
 

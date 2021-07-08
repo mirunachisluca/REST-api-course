@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RestAPI.Entities;
+using RestAPI.Helpers;
 using RestAPI.ResourceParams;
 
 namespace RestAPI.Services
@@ -13,7 +14,7 @@ namespace RestAPI.Services
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
         IEnumerable<Author> GetAuthors();
-        IEnumerable<Author> GetAuthors(AuthorsResourceParams authorsParams);
+        PagedList<Author> GetAuthors(AuthorsResourceParams authorsParams);
         Author GetAuthor(Guid authorId);
         IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);

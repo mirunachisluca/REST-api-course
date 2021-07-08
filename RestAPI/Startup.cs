@@ -86,6 +86,8 @@ namespace RestAPI
 
             services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
 
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+
             services.AddDbContext<CourseLibraryContext>(options =>
             {
                 options.UseSqlServer(
